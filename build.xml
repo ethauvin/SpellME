@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="SpellME" default="build" basedir=".">
+	<taskdef resource="antenna.properties"/>
+
+	<property environment="env"/>
+	<property file="build.properties"/>
+	<property name="wtk.home" value="${env.WTK_HOME}"/>
+	<property name="wtk.wme.home" value="${env.WME_HOME}"/>
+	<property name="path.build" value="build"/>
+	<property name="path.classes" value="${path.build}/classes"/>
+	<property name="path.src" value="src"/>
+	<property name="path.res" value="res"/>
+	<property name="path.deploy" value="deployed"/>
+	
+	<property name="path.converter" value="lib/Converter.jar"/>
+	
+	<target name="init">
+		<tstamp/>
+		<mkdir dir="${path.build}"/>
+		<mkdir dir="${path.deploy}"/>
+	</target>
+	
+	<target name="compile" depends="init" description="Compiles sources">
+		<mkdir dir="${path.classes}"/>
+		<wtkbuild srcdir="${path.src}" destdir="${path.classes}" preverify="false"/>
+	</target>
+	
+	<target name="jar" depends="compile" description="Builds the jar">
+		<copy todir="${path.deploy}" file="${ant.project.name}.jad"/>
+		<wtkpackage jarfile="${path.deploy}/${ant.project.name}.jar"
+					jadfile="${path.deploy}/${ant.project.name}.jad"
+					obfuscate="true"
+					preverify="true">
+			<fileset dir="${path.classes}"/>
+			<fileset dir="${path.res}" includes="*.png"/>
+		</wtkpackage>
+	</target>
+	
+	<target name="prc" depends="jar" description="Builds the PRC">
+		<echo message="Generating PRC file ${ant.project.name}.prc using WTK"/>
+        <java classname="com.sun.midp.palm.database.MakeMIDPApp" fork="true">
+        	<classpath location="${path.converter}"/>
+         	<arg value="-o"/>
+         	<arg value="${path.deploy}\${ant.project.name}.prc"/>
+         	<arg value="-creator"/>
+         	<arg value="${palm.creator}"/>
+         	<arg value="-icon"/>
+         	<arg value="${path.res}\${ant.project.name}.bmp"/>
+         	<arg value="-smallicon"/>
+         	<arg value="${path.res}\${ant.project.name}-small.bmp"/>
+         	<arg value="-type"/>
+         	<arg value="appl"/>
+         	<arg value="-jad"/>
+         	<arg value="${path.deploy}\${ant.project.name}.jad"/>
+         	<arg value="${path.deploy}\${ant.project.name}.jar"/>
+        </java>
+	</target>
+	
+	<target name="prc5" depends="jar" description="Builds the PRC using WME">
+        <wtkmakeprc jadfile="${path.deploy}/${ant.project.name}.jad"
+                    jarfile="${path.deploy}/${ant.project.name}.jar"
+                    prcfile="${path.deploy}/${ant.project.name}.prc"
+                    icon="${path.res}/${ant.project.name}.bmp"
+                    smallicon="${path.res}/${ant.project.name}-small.bmp"
+                    type="appl"
+                    creator="${palm.creator}"
+                    name="${ant.project.name}"/>
+    </target>
+	
+	<target name="run" description="Execute the program">
+		<wtkrun jadfile="${path.deploy}/${ant.project.name}.jad" device="DefaultColorPhone" wait="true"/>
+	</target>
+	
+	<target name="build" depends="jar,prc" description="Rebuilds project"/>
+	
+	<target name="clean" depends="init" description="Removes classses and javadoc">
+		<delete quiet="true" includeEmptyDirs="true">
+			<fileset dir="${path.build}" includes="*,*/**"/>
+		</delete>
+	</target>
+</project>
