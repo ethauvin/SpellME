@@ -1,0 +1,12 @@
+MIDlet-1: SpellME,/spellme.png,net.thauvin.j2me.spellme.SpellME
+MIDlet-Description: SpellME
+MIDlet-Icon: /spellme.png
+MIDlet-Info-URL: http://www.thauvin.net/erik/j2me/
+MIDlet-Jar-Size: 0
+MIDlet-Jar-URL: SpellME.jar
+MIDlet-Name: SpellME
+MIDlet-Vendor: Erik C. Thauvin
+MIDlet-Version: 0.1.0
+SpellME-Default: false
+SpellME-Exit: true
+SpellME-NATO: false
